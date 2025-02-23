@@ -10,35 +10,43 @@ export interface TimerFormData {
 
 export const validateTimerForm = (data: TimerFormData): boolean => {
   const { title, hours, minutes, seconds } = data;
+  const errors: string[] = [];
   
+  // Collect all validation errors
   if (!title.trim()) {
-    toast.error('Title is required');
-    return false;
+    errors.push('Title is required');
   }
 
   if (title.length > 50) {
-    toast.error('Title must be less than 50 characters');
-    return false;
+    errors.push('Title must be less than 50 characters');
   }
 
   if (hours < 0 || minutes < 0 || seconds < 0) {
-    toast.error('Time values cannot be negative');
-    return false;
+    errors.push('Time values cannot be negative');
   }
 
   if (minutes > 59 || seconds > 59) {
-    toast.error('Minutes and seconds must be between 0 and 59');
-    return false;
+    errors.push('Minutes and seconds must be between 0 and 59');
   }
 
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
   if (totalSeconds === 0) {
-    toast.error('Please set a time greater than 0');
-    return false;
+    errors.push('Please set a time greater than 0');
   }
 
   if (totalSeconds > 86400) { // 24 hours
-    toast.error('Timer cannot exceed 24 hours');
+    errors.push('Timer cannot exceed 24 hours');
+  }
+
+  // If there are any errors, show them in a toast and return false
+  if (errors.length > 0) {
+    // Show each error in a separate toast
+    errors.forEach(error => {
+      toast.error(error, {
+        duration: 3000,
+        position: window.innerWidth <= 768 ? 'bottom-center' : 'top-right'
+      });
+    });
     return false;
   }
 

@@ -194,12 +194,8 @@ export const EditTimerModal: React.FC<EditTimerModalProps> = ({
             </button>
             <button
               type="submit"
-              className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
-                isTitleValid && isTimeValid
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-blue-400 cursor-not-allowed'
-              }`}
-              disabled={!isTitleValid || !isTimeValid}
+              className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors
+                ${isTitleValid && isTimeValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 opacity-90'}`}
             >
               Save Changes
             </button>
