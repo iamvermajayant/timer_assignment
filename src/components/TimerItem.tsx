@@ -16,32 +16,43 @@ interface TimerItemProps {
 export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
   const { toggleTimer, deleteTimer, updateTimer, restartTimer } = useTimerStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const intervalRef = useRef<number | null>(null);
-  const timerAudio = TimerAudio.getInstance();
   const hasEndedRef = useRef(false);
+  const timerAudio = TimerAudio.getInstance();
 
   useEffect(() => {
-    if (timer.isRunning) {
-      intervalRef.current = window.setInterval(() => {
-        updateTimer(timer.id);
+    let intervalId: number | null = null;
+    
+    if (timer.isRunning && timer.remainingTime > 0) {
+      intervalId = window.setInterval(() => {
+        updateTimer();
         
         if (timer.remainingTime <= 1 && !hasEndedRef.current) {
           hasEndedRef.current = true;
-          timerAudio.play().catch(console.error);
+          timerAudio.playLoop();
           
           toast.success(`Timer "${timer.title}" has ended!`, {
-            duration: 5000,
+            duration: Infinity,
             action: {
               label: 'Dismiss',
-              onClick: timerAudio.stop,
+              onClick: () => {
+                timerAudio.stop();
+                toast.dismiss();
+              },
+            },
+            onDismiss: () => {
+              timerAudio.stop();
             },
           });
         }
       }, 1000);
     }
 
-    return () => clearInterval(intervalRef.current!);
-  }, [timer.isRunning, timer.id, timer.remainingTime, timer.title, timerAudio, updateTimer]);
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [timer.isRunning, timer.remainingTime, timer.title, updateTimer]);
 
   const handleRestart = () => {
     hasEndedRef.current = false;
